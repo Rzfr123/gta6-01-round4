@@ -80,6 +80,7 @@ export function makeCar(G, modelId, color, opts = {}) {
     speed: 0,
     engine: opts.engine ?? 0,   // Neon Customs level 0-3
     armor: opts.armor ?? 0,     // Neon Customs level 0-3
+    underglow: false,
     health: 100,
     kind: opts.kind ?? 'traffic',
     police: !!opts.police,

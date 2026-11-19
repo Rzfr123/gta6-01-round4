@@ -156,7 +156,7 @@ export function stealCar(G) {
   car.kind = 'player';
   car.driver = 'player';
   P.car = car;
-  addHeat(G, 30);
+  addHeat(G, 45);
   G.audio.playSirenBlip();
   G.hud.notify(`You jacked a ${car.model.name}! The PD is on you.`);
 }

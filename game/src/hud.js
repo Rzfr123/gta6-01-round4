@@ -224,6 +224,6 @@ export function openGarage(G) {
   };
   add('Engine tune', 500, car.engine, 3, () => { G.cash -= 500; car.engine += 1; G.hud.notify(`Engine tuned to Lv ${car.engine}. Faster top speed.`); openGarage(G); });
   add('Armor plating', 400, car.armor, 3, () => { G.cash -= 400; car.armor += 1; G.hud.notify(`Armor plated to Lv ${car.armor}.`); openGarage(G); });
-  add('Neon underglow (pink)', 150, car.paint ? 1 : 0, 1, () => { G.cash -= 150; car.paint = 0xff4fd8; G.hud.notify('Underglow installed. Very Lumen.'); openGarage(G); });
+  add('Neon underglow (pink)', 150, car.underglow ? 1 : 0, 1, () => { G.cash -= 150; car.underglow = true; G.hud.notify('Underglow installed. Very Lumen.'); openGarage(G); });
   h.garage.classList.remove('hidden');
 }

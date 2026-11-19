@@ -116,20 +116,23 @@ export function updatePolice(G, dt) {
     while (dh > Math.PI) dh -= Math.PI * 2;
     while (dh < -Math.PI) dh += Math.PI * 2;
     cop.heading += Math.max(-2.4 * dt, Math.min(2.4 * dt, dh));
-    const top = 30 + G.wanted * 2.5;
+    const top = 26 + G.wanted * 2;
     cop.speed = Math.min(top, cop.speed + 16 * dt);
-    if (dist < 3.2) {
-      // Ram: shove the player's car, or hurt the player on foot.
+    cop.ramCd = Math.max(0, (cop.ramCd ?? 0) - dt);
+    if (dist < 3.2 && cop.ramCd <= 0) {
+      // Ram: a single shove + damage, then a cooldown so the player can
+      // actually pull away instead of being pinned by constant contact.
+      cop.ramCd = 0.8;
       cop.speed *= 0.4;
       if (G.player.car) {
         G.player.car.speed *= 0.85;
-        G.player.car.health -= 6 * dt * 10;
+        G.player.car.health -= 8;
         if (G.player.car.health <= 0) G.player.car.health = 1;
       } else {
-        G.player.health -= 14 * dt;
+        G.player.health -= 10;
       }
-      G.player.x += Math.sin(cop.heading) * 2 * dt * 10;
-      G.player.z += Math.cos(cop.heading) * 2 * dt * 10;
+      G.player.x += Math.sin(cop.heading) * 1.2;
+      G.player.z += Math.cos(cop.heading) * 1.2;
     }
     cop.x += Math.sin(cop.heading) * cop.speed * dt;
     cop.z += Math.cos(cop.heading) * cop.speed * dt;
