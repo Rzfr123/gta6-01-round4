@@ -116,10 +116,15 @@ const dossier = buildDossier(out, {
 });
 writeFileSync(join(out, 'dossier.json'), dossier);
 
-// Verify the dossier byte-for-byte: what we wrote must be exactly what
-// buildDossier produced, so a partial write can never slip through.
-const written = readFileSync(join(out, 'dossier.json'), 'utf8');
-if (written !== dossier) throw new Error('dossier.json verification failed: bytes differ after write');
+// Verify the dossier byte-for-byte: buildDossier returns Uint8Array bytes,
+// so compare buffers, not a string against bytes — what we wrote must be
+// exactly what buildDossier produced, so a partial write can never slip
+// through.
+const writtenBytes = readFileSync(join(out, 'dossier.json'));
+if (!Buffer.from(writtenBytes).equals(Buffer.from(dossier))) {
+  throw new Error('dossier.json verification failed: bytes differ after write');
+}
+const written = writtenBytes.toString('utf8');
 const parsed = JSON.parse(written);
 if (!parsed || typeof parsed !== 'object') throw new Error('dossier.json is not a JSON object');
 console.log(`Solmar Heat dossier written: ${shots.length} screenshots, ${written.length} bytes`);
