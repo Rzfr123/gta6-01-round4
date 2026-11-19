@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solmar Heat — open-world crime in Solmar City</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0d0a14; font-family: "Segoe UI", Arial, sans-serif; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .hud { position: fixed; color: #fff; text-shadow: 0 1px 3px #000; z-index: 5; user-select: none; pointer-events: none; }
+  #topleft { top: 12px; left: 14px; font-size: 18px; line-height: 1.5; }
+  #topleft .cash { color: #7dff9a; font-weight: 700; font-size: 22px; }
+  #stars { top: 12px; right: 16px; font-size: 26px; letter-spacing: 2px; color: #ffd23e; }
+  #stars .off { color: rgba(255,255,255,.25); }
+  #district { top: 52px; right: 16px; font-size: 15px; color: #ffd7f2; text-align: right; }
+  #objective { top: 14px; left: 50%; transform: translateX(-50%); text-align: center; font-size: 16px; background: rgba(10,6,20,.55); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,80,200,.5); max-width: 46vw; }
+  #objective .obj-title { color: #ff7ad9; font-weight: 700; }
+  #speedo { bottom: 16px; right: 18px; text-align: right; font-size: 15px; }
+  #speedo .mph { font-size: 34px; font-weight: 700; color: #fff; }
+  #radio { color: #7df3ff; }
+  #minimapWrap { bottom: 14px; left: 14px; width: 190px; height: 190px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,.75); box-shadow: 0 0 0 3px rgba(255,80,200,.6), 0 4px 18px rgba(0,0,0,.6); background: #101418; }
+  #minimap { width: 100%; height: 100%; display: block; }
+  #toast { bottom: 220px; left: 50%; transform: translateX(-50%); font-size: 17px; background: rgba(0,0,0,.6); padding: 8px 18px; border-radius: 8px; opacity: 0; transition: opacity .3s; white-space: nowrap; }
+  #hint { bottom: 14px; left: 220px; font-size: 12px; color: rgba(255,255,255,.75); line-height: 1.6; }
+  .panel { position: fixed; z-index: 10; background: rgba(12,8,24,.94); border: 1px solid #ff4fc3; border-radius: 12px; color: #fff; padding: 18px; box-shadow: 0 8px 40px rgba(0,0,0,.7); }
+  .panel h2 { margin: 0 0 4px; color: #ff7ad9; font-size: 20px; }
+  .panel .sub { color: #9be7ff; font-size: 13px; margin-bottom: 10px; }
+  .panel button { display: block; width: 100%; margin: 6px 0; padding: 9px 12px; background: #2a1440; color: #fff; border: 1px solid #ff4fc3; border-radius: 8px; font-size: 15px; cursor: pointer; text-align: left; }
+  .panel button:hover { background: #ff4fc3; }
+  .panel button:disabled { opacity: .4; cursor: default; }
+  .panel button:disabled:hover { background: #2a1440; }
+  #phone { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 380px; max-height: 88vh; overflow-y: auto; }
+  #phone .post { border: 1px solid rgba(255,255,255,.2); border-radius: 10px; padding: 10px; margin: 8px 0; background: rgba(255,255,255,.05); }
+  #phone .post .who { color: #7df3ff; font-weight: 700; }
+  #phone .post .done { color: #7dff9a; }
+  #phone .post .locked { color: #888; }
+  #shop, #garage { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 360px; }
+  #overlay { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; background: linear-gradient(180deg, rgba(20,4,40,.82), rgba(255,60,180,.28) 55%, rgba(10,20,60,.85)); }
+  #overlay h1 { font-size: 64px; margin: 0; letter-spacing: 4px; color: #ff7ad9; text-shadow: 0 0 24px #ff2fb3, 0 4px 0 #7a0a4d; }
+  #overlay h1 .sol { color: #7df3ff; text-shadow: 0 0 24px #00c8ff, 0 4px 0 #065a75; }
+  #overlay p { max-width: 560px; font-size: 17px; line-height: 1.6; }
+  #overlay .keys { font-size: 14px; color: #ffd7f2; }
+  #startBtn { pointer-events: auto; margin-top: 18px; padding: 14px 42px; font-size: 20px; font-weight: 700; background: #ff2fb3; color: #fff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 0 24px rgba(255,47,179,.8); }
+  #startBtn:hover { background: #ff5cc4; }
+  #bigmsg { position: fixed; inset: 0; z-index: 15; display: none; align-items: center; justify-content: center; flex-direction: column; color: #fff; background: rgba(0,0,0,.55); text-align: center; }
+  #bigmsg h1 { font-size: 56px; margin: 0; }
+  #bigmsg p { font-size: 18px; }
+  #bigmsg button { pointer-events: auto; margin-top: 12px; padding: 10px 28px; font-size: 17px; background: #ff2fb3; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+  #crosshair { position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 4; color: #fff; font-size: 22px; text-shadow: 0 0 4px #000; pointer-events: none; display: none; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Solmar Heat: drive, steal cars, outrun the police and finish story missions across Solmar City"></canvas>
+<p id="status" role="status" aria-live="polite"></p>
+<div id="topleft" class="hud"><span class="cash" id="cash">$500</span><br><span id="health">♥ 100</span> <span id="armor"></span><br><span id="weapon">Pistol · ∞</span></div>
+<div id="stars" class="hud"></div>
+<div id="district" class="hud">Downtown Solmar</div>
+<div id="objective" class="hud hidden"><span class="obj-title" id="objTitle"></span><br><span id="objText"></span></div>
+<div id="speedo" class="hud"><span class="mph" id="mph">0</span> MPH<br><span id="carname"></span><br><span id="radio">♪ Vice Coast FM</span></div>
+<div id="minimapWrap" class="hud"><canvas id="minimap" width="190" height="190"></canvas></div>
+<div id="toast" class="hud"></div>
+<div id="hint" class="hud">WASD move/drive · E enter · F steal · SPACE handbrake · CLICK shoot · 1/2/3 guns<br>M mission · V radio · U phone · C camera · P pause · B shop · G garage · H save · R race/holdup</div>
+<div id="crosshair">+</div>
+
+<div id="phone" class="panel hidden">
+  <h2>📱 Solmar Social</h2>
+  <div class="sub">Lena Voss and the city, in your pocket. M starts the next job.</div>
+  <div id="phoneList"></div>
+  <button id="phoneClose">Close (U)</button>
+</div>
+
+<div id="shop" class="panel hidden">
+  <h2 id="shopTitle">Shop</h2>
+  <div class="sub" id="shopSub"></div>
+  <div id="shopItems"></div>
+  <button id="shopClose">Leave (B)</button>
+</div>
+
+<div id="garage" class="panel hidden">
+  <h2>🔧 Neon Customs</h2>
+  <div class="sub">Tune the car you are driving. Prices are per level.</div>
+  <div id="garageItems"></div>
+  <button id="garageClose">Drive out (G)</button>
+</div>
+
+<div id="overlay">
+  <h1><span class="sol">SOLMAR</span> HEAT</h1>
+  <p>Kai Mercer is back in Solmar City with his partner Rosa Vega. Fixer Lena Voss has twelve jobs for you — and Dante Kross wants you gone. Steal cars, outrun the Solmar PD, race the Neon Strand, and pull the Vice Job.</p>
+  <p class="keys">WASD move / drive · E enter car · F steal car · CLICK shoot · M mission · U phone</p>
+  <button id="startBtn">START ENGINE</button>
+  <p class="keys" id="saveNote"></p>
+</div>
+
+<div id="bigmsg"><h1 id="bigTitle"></h1><p id="bigText"></p><button id="bigBtn">Keep going</button></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
