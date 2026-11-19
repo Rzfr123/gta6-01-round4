@@ -48,8 +48,10 @@ export function applyShot(G, name) {
     G.partner.group.position.set(147, 0, -4);
     G.hud.notify('Club Lumen — Kai and Rosa, before the job.');
   } else if (name === 'garage') {
-    // At Neon Customs with the garage menu open over a tuned GT.
-    const car = makeCar(G, 'sunset', 0xff4fd8, { x: -40, z: 88, kind: 'player', heading: Math.PI });
+    // At Neon Customs with the garage menu open over a tuned GT. The car
+    // parks south of the building (z=80) so the shot camera sees it clear
+    // of the customs hall.
+    const car = makeCar(G, 'sunset', 0xff4fd8, { x: -40, z: 80, kind: 'player', heading: Math.PI });
     car.engine = 2;
     car.armor = 1;
     G.cars.push(car);
