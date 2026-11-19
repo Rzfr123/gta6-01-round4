@@ -219,11 +219,13 @@ function updateCamera(dt) {
     lz = P.z + Math.cos(P.heading) * 6;
     ly = 2.0;
   } else if (G.shotMode === 'garage') {
-    cx = P.x + 10;
-    cy = 5;
-    cz = P.z + 12;
-    lx = P.x;
-    lz = P.z;
+    // South-east of the car, looking north-west: the car reads with the
+    // Neon Customs building behind it instead of between lens and car.
+    cx = P.x + 9;
+    cy = 4.5;
+    cz = P.z - 11;
+    lx = P.x - 2;
+    lz = P.z + 4;
     ly = 1.5;
   } else {
     cx = P.x - Math.sin(G.camYaw) * dist * Math.cos(pitch);
