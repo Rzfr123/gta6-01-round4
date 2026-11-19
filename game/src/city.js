@@ -87,13 +87,13 @@ function addBuilding(G, cx, cz, w, d, h, color) {
 function neonSign(G, x, y, z, text, color) {
   // Letters as glowing boxes — a skyline sign, no textures needed.
   const group = new THREE.Group();
-  const letterW = 4.2;
+  const letterW = 3.4;
   const startX = -((text.length * letterW) / 2);
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     if (ch === ' ') continue;
     const m = new THREE.Mesh(
-      new THREE.BoxGeometry(letterW * 0.7, 7, 1.2),
+      new THREE.BoxGeometry(letterW * 0.62, 5, 1.0),
       new THREE.MeshBasicMaterial({ color }),
     );
     m.position.set(startX + i * letterW + letterW / 2, 0, 0);
@@ -255,9 +255,10 @@ export function buildCity(G) {
     }
   }
 
-  // Beachfront hotels along the Neon Strand.
+  // Beachfront hotels along the Neon Strand. x=178 keeps every footprint
+  // clear of the x=160 road (road edge 166, hotel edge 171).
   for (let z = -140; z <= 140; z += 40) {
-    addBuilding(G, 168, z + 10, 14, 18, 18 + ((z + 140) % 30), 0xe8d8c8);
+    addBuilding(G, 178, z + 10, 14, 18, 18 + ((z + 140) % 30), 0xe8d8c8);
   }
 
   // --- Park (centre block) ----------------------------------------------

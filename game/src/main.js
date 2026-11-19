@@ -212,12 +212,12 @@ function updateCamera(dt) {
     lx = P.x + Math.sin(G.camYaw) * 12;
     lz = P.z + Math.cos(G.camYaw) * 12;
   } else if (G.shotMode === 'street') {
-    cx = P.x - Math.sin(P.heading) * 7;
-    cy = 2.6;
-    cz = P.z - Math.cos(P.heading) * 7;
+    cx = P.x - Math.sin(P.heading) * 5;
+    cy = 2.3;
+    cz = P.z - Math.cos(P.heading) * 5;
     lx = P.x + Math.sin(P.heading) * 6;
     lz = P.z + Math.cos(P.heading) * 6;
-    ly = 2.2;
+    ly = 2.0;
   } else if (G.shotMode === 'garage') {
     cx = P.x + 10;
     cy = 5;

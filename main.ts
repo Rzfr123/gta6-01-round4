@@ -33,6 +33,50 @@ if (!existsSync(join(here, 'game', 'vendor', 'three.module.min.js'))) {
   throw new Error('missing vendored game/vendor/three.module.min.js');
 }
 
+// Game size caps, checked BEFORE copying so a bloated game/ fails fast
+// instead of producing a dossier the judge would refuse: at most 993
+// files and 48 MiB under game/, and no path over 1000 bytes.
+{
+  let files = 0;
+  let bytes = 0;
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, entry.name);
+      if (p.length > 1000) throw new Error(`game path over 1000 bytes: ${p}`);
+      if (entry.isDirectory()) walk(p);
+      else {
+        files += 1;
+        bytes += statSync(p).size;
+      }
+    }
+  };
+  walk(join(here, 'game'));
+  if (files > 993) throw new Error(`game/ has ${files} files, over the 993 cap`);
+  if (bytes > 50331648) throw new Error(`game/ is ${bytes} bytes, over the 48 MiB cap`);
+  console.log(`game/ size check: ${files} files, ${(bytes / 1024).toFixed(0)} KiB`);
+}
+
+// Every module the game boots from must be present, and the README must
+// carry the make.fun badges the gate checks for — a half-copied game/
+// would otherwise build a dossier that looks fine and plays broken.
+const requiredModules = [
+  'main.js', 'city.js', 'vehicles.js', 'traffic.js', 'police.js',
+  'player.js', 'partner.js', 'collectibles.js', 'missions.js',
+  'hud.js', 'audio.js', 'save.js', 'shots.js',
+];
+for (const mod of requiredModules) {
+  if (!existsSync(join(here, 'game', 'src', mod))) {
+    throw new Error(`missing game/src/${mod}`);
+  }
+}
+const readme = readFileSync(join(here, 'README.md'), 'utf8');
+if (!readme.includes('make.fun/badge/gta6-01') || !readme.includes('https://make.fun/bounty/gta6-01')) {
+  throw new Error('README.md is missing the make.fun gta6-01 badges / bounty link');
+}
+if (Buffer.byteLength(readme) > 4096) {
+  throw new Error(`README.md is ${Buffer.byteLength(readme)} bytes, over the 4096 cap`);
+}
+
 const shotsDir = join(here, 'screenshots');
 const shots = existsSync(shotsDir)
   ? readdirSync(shotsDir).filter((f) => /\.(png|jpe?g)$/i.test(f)).sort()
